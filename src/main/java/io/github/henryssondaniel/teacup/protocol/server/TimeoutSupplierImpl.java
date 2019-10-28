@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class TimeoutSupplierImpl<T extends Request> implements TimeoutSupplier<T> {
+class TimeoutSupplierImpl<T> implements TimeoutSupplier<T> {
   private static final Logger LOGGER = Factory.getLogger(TimeoutSupplierImpl.class);
 
   private final Lock lock;

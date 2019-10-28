@@ -1,7 +1,5 @@
 package io.github.henryssondaniel.teacup.protocol;
 
-import io.github.henryssondaniel.teacup.protocol.server.Context;
-import io.github.henryssondaniel.teacup.protocol.server.Request;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -12,7 +10,7 @@ import java.util.function.Supplier;
  * @param <U> the request
  * @since 1.0
  */
-public interface Server<T extends Context, U extends Request> {
+public interface Server<T, U> {
   /**
    * Removes the supplier from the context.
    *

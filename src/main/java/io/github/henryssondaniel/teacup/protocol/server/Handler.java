@@ -8,7 +8,7 @@ import java.util.List;
  * @param <T> the request
  * @since 1.0
  */
-public interface Handler<T extends Request> {
+public interface Handler<T> {
   /**
    * Adds a new timeout supplier.
    *

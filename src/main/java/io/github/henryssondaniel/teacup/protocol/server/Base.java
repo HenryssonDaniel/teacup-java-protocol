@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @param <V> the request
  * @since 1.0
  */
-public abstract class Base<T extends Context, U, V extends Request> implements Server<T, V> {
+public abstract class Base<T, U, V> implements Server<T, V> {
   private static final Logger LOGGER = Factory.getLogger(Base.class);
 
   private final Object lock = new Object();

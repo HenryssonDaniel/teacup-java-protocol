@@ -18,12 +18,12 @@ import org.mockito.MockitoAnnotations;
 class TimeoutSupplierImplTest {
   private final Lock lock = mock(Lock.class);
 
-  @Mock private Consumer<? super List<Request>> consumer;
-  private TimeoutSupplier<Request> timeoutSupplier;
+  @Mock private Consumer<? super List<Object>> consumer;
+  private TimeoutSupplier<Object> timeoutSupplier;
 
   @Test
   void addAndGetRequest() {
-    var request = mock(Request.class);
+    var request = mock(Object.class);
     timeoutSupplier.addRequest(request);
     assertThat(timeoutSupplier.get()).containsExactly(request);
   }

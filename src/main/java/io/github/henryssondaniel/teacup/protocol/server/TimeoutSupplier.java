@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * @param <T> the request
  * @since 1.0
  */
-public interface TimeoutSupplier<T extends Request> extends Supplier<List<T>> {
+public interface TimeoutSupplier<T> extends Supplier<List<T>> {
   /**
    * Add a request.
    *
