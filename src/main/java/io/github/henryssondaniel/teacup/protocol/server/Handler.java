@@ -1,32 +1,17 @@
 package io.github.henryssondaniel.teacup.protocol.server;
 
-import java.util.List;
-
 /**
  * Handler.
  *
  * @param <T> the request
  * @since 1.0
  */
+@FunctionalInterface
 public interface Handler<T> {
   /**
-   * Adds a new timeout supplier.
+   * Adds a request to the handler.
    *
-   * @param timeoutSupplier the timeout supplier
+   * @param request the request
    */
-  void addTimeoutSupplier(TimeoutSupplier<T> timeoutSupplier);
-
-  /**
-   * Get timeout suppliers.
-   *
-   * @return the timeout suppliers
-   */
-  List<TimeoutSupplier<T>> getTimeoutSuppliers();
-
-  /**
-   * Remove timeout supplier.
-   *
-   * @param timeoutSupplier the timeout supplier
-   */
-  void removeTimeoutSupplier(TimeoutSupplier<T> timeoutSupplier);
+  void addRequest(T request);
 }

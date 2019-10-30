@@ -22,7 +22,7 @@ public abstract class Base<T, U, V> implements Server<T, V> {
   private static final Logger LOGGER = Factory.getLogger(Base.class);
 
   private final Object lock = new Object();
-  private final Map<String, U> map = new HashMap<>(0);
+  private final Map<String, HandlerContext<U, V>> map = new HashMap<>(0);
 
   private boolean waiting = true;
 
@@ -51,18 +51,10 @@ public abstract class Base<T, U, V> implements Server<T, V> {
    * Creates a new protocol context.
    *
    * @param context the context
-   * @param timeoutSupplier the timeout supplier
+   * @param handler the handler
    * @return the protocol context
    */
-  protected abstract U createProtocolContext(T context, TimeoutSupplier<V> timeoutSupplier);
-
-  /**
-   * Returns the handler.
-   *
-   * @param protocolContext the protocol context
-   * @return the handler
-   */
-  protected abstract Handler<V> getHandler(U protocolContext);
+  protected abstract U createProtocolContext(T context, Handler<V> handler);
 
   /**
    * Returns a unique key for the context.
@@ -91,12 +83,16 @@ public abstract class Base<T, U, V> implements Server<T, V> {
   private U addSupplier(T context, TimeoutSupplier<V> timeoutSupplier) throws InterruptedException {
     U protocolContext;
 
+    var key = getKey(context);
+
     synchronized (lock) {
-      if (map.containsKey(getKey(context)))
-        protocolContext = tryAddSupplier(context, timeoutSupplier);
+      if (map.containsKey(key)) protocolContext = tryAddSupplier(context, timeoutSupplier);
       else {
-        protocolContext = createProtocolContext(context, timeoutSupplier);
-        map.put(getKey(context), protocolContext);
+        SupplierHandler<V> supplierHandler = new SupplierHandlerImpl<>();
+        supplierHandler.addTimeoutSupplier(timeoutSupplier);
+
+        protocolContext = createProtocolContext(context, supplierHandler);
+        map.put(key, new HandlerContextImpl<>(supplierHandler, protocolContext));
       }
     }
 
@@ -104,13 +100,15 @@ public abstract class Base<T, U, V> implements Server<T, V> {
   }
 
   private void cleanup(T context, U protocolContext, TimeoutSupplier<V> timeoutSupplier) {
-    var handler = getHandler(protocolContext);
-    handler.removeTimeoutSupplier(timeoutSupplier);
+    var key = getKey(context);
+
+    var supplierHandler = map.get(key).getHandler();
+    supplierHandler.removeTimeoutSupplier(timeoutSupplier);
 
     synchronized (lock) {
-      if (handler.getTimeoutSuppliers().isEmpty()) {
+      if (supplierHandler.getTimeoutSuppliers().isEmpty()) {
         serverCleanup(protocolContext);
-        map.remove(getKey(context));
+        map.remove(key);
         waiting = false;
         lock.notifyAll();
       }
@@ -119,10 +117,12 @@ public abstract class Base<T, U, V> implements Server<T, V> {
 
   private U tryAddSupplier(T context, TimeoutSupplier<V> timeoutSupplier)
       throws InterruptedException {
-    var protocolContext = map.get(getKey(context));
+    var handlerContext = map.get(getKey(context));
+
+    var protocolContext = handlerContext.getProtocolContext();
 
     if (isEquals(context, protocolContext))
-      getHandler(protocolContext).addTimeoutSupplier(timeoutSupplier);
+      handlerContext.getHandler().addTimeoutSupplier(timeoutSupplier);
     else
       synchronized (lock) {
         while (waiting) lock.wait(1L);
@@ -132,5 +132,31 @@ public abstract class Base<T, U, V> implements Server<T, V> {
       }
 
     return protocolContext;
+  }
+
+  private interface HandlerContext<T, U> {
+    SupplierHandler<U> getHandler();
+
+    T getProtocolContext();
+  }
+
+  private static final class HandlerContextImpl<T, U> implements HandlerContext<T, U> {
+    private final SupplierHandler<U> handler;
+    private final T protocolContext;
+
+    private HandlerContextImpl(SupplierHandler<U> handler, T protocolContext) {
+      this.handler = handler;
+      this.protocolContext = protocolContext;
+    }
+
+    @Override
+    public SupplierHandler<U> getHandler() {
+      return handler;
+    }
+
+    @Override
+    public T getProtocolContext() {
+      return protocolContext;
+    }
   }
 }
