@@ -85,15 +85,13 @@ public abstract class Base<T, U, V> implements Server<T, V> {
 
     var key = getKey(context);
 
-    synchronized (lock) {
-      if (map.containsKey(key)) protocolContext = tryAddSupplier(context, timeoutSupplier);
-      else {
-        SupplierHandler<V> supplierHandler = new SupplierHandlerImpl<>();
-        supplierHandler.addTimeoutSupplier(timeoutSupplier);
+    if (map.containsKey(key)) protocolContext = tryAddSupplier(context, timeoutSupplier);
+    else {
+      SupplierHandler<V> supplierHandler = new SupplierHandlerImpl<>();
+      supplierHandler.addTimeoutSupplier(timeoutSupplier);
 
-        protocolContext = createProtocolContext(context, supplierHandler);
-        map.put(key, new HandlerContextImpl<>(supplierHandler, protocolContext));
-      }
+      protocolContext = createProtocolContext(context, supplierHandler);
+      map.put(key, new HandlerContextImpl<>(supplierHandler, protocolContext));
     }
 
     return protocolContext;
