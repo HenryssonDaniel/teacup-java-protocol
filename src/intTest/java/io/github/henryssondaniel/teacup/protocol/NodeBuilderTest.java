@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.henryssondaniel.teacup.core.assertion.Factory;
 import io.github.henryssondaniel.teacup.core.assertion.GenericObjectAssert;
+import io.github.henryssondaniel.teacup.protocol.node.BaseBuilder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ class NodeBuilderTest {
   }
 
   private static final class TestDefaultNodeBuilder
-      extends DefaultNodeBuilder<String, TestNode, TestNode, TestDefaultNodeBuilder> {
+      extends BaseBuilder<String, TestNode, TestNode, TestDefaultNodeBuilder> {
     private TestDefaultNodeBuilder(TestNode testNode) {
       super(testNode);
     }

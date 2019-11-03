@@ -1,12 +1,15 @@
-package io.github.henryssondaniel.teacup.protocol;
+package io.github.henryssondaniel.teacup.protocol.node;
 
 import io.github.henryssondaniel.teacup.core.assertion.GenericObjectAssert;
 import io.github.henryssondaniel.teacup.core.logging.Factory;
+import io.github.henryssondaniel.teacup.protocol.DefaultBuilder;
+import io.github.henryssondaniel.teacup.protocol.Node;
+import io.github.henryssondaniel.teacup.protocol.NodeBuilder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default implementation of the {@link NodeBuilder}.
+ * Base implementation of the {@link NodeBuilder}.
  *
  * @param <T> the actual type
  * @param <U> the node type
@@ -14,10 +17,10 @@ import java.util.logging.Logger;
  * @param <X> the node builder type
  * @since 1.0
  */
-public abstract class DefaultNodeBuilder<
+public abstract class BaseBuilder<
         T, U extends Node<T>, V extends Node<T>, X extends NodeBuilder<T, U, X>>
     extends DefaultBuilder<U, V> implements NodeBuilder<T, U, X> {
-  private static final Logger LOGGER = Factory.getLogger(DefaultNodeBuilder.class);
+  private static final Logger LOGGER = Factory.getLogger(BaseBuilder.class);
 
   /**
    * Constructor.
@@ -25,7 +28,7 @@ public abstract class DefaultNodeBuilder<
    * @param setter the setter
    * @since 1.0
    */
-  protected DefaultNodeBuilder(V setter) {
+  protected BaseBuilder(V setter) {
     super(setter);
   }
 
