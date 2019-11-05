@@ -1,6 +1,7 @@
 package io.github.henryssondaniel.teacup.protocol.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,20 +57,28 @@ class BaseTest {
         .thenReturn(KEY, KEY, KEY)
         .thenAnswer(invocation -> waitKeyFinished())
         .thenReturn(KEY)
+        .thenAnswer(invocation -> notifyKey())
+        .thenReturn(KEY, KEY)
         .thenAnswer(invocation -> notifyKey());
 
     var createdSupplier = server.setContext(context);
     assertThat(createdSupplier).isNotNull();
 
-    createThread();
+    var supplierArray = createSupplier();
 
     removeSupplier(createdSupplier);
+
+    createThread();
+
+    lockWait();
+
+    server.removeSupplier(supplierArray[0]);
 
     synchronized (lock) {
       while (waiting) lock.wait(1L);
     }
 
-    verify(context, times(6)).getKey();
+    verify(context, atLeast(10)).getKey();
     verifyNoMoreInteractions(context);
   }
 
@@ -123,11 +132,33 @@ class BaseTest {
     verifyNoMoreInteractions(context);
   }
 
+  private Supplier<List<String>>[] createSupplier() {
+    Supplier<List<String>>[] supplierArray = new Supplier[1];
+
+    var thread =
+        new Thread(
+            () -> {
+              supplierArray[0] = server.setContext(context);
+              assertThat(supplierArray[0]).isNotNull();
+            });
+    thread.start();
+
+    return supplierArray;
+  }
+
   private Thread createThread() {
     var thread = new Thread(() -> assertThat(server.setContext(context)).isNotNull());
     thread.start();
 
     return thread;
+  }
+
+  private void lockWait() throws InterruptedException {
+    synchronized (lock) {
+      while (waiting) lock.wait(1L);
+
+      waiting = true;
+    }
   }
 
   private Object notifyKey() {
@@ -164,17 +195,16 @@ class BaseTest {
   }
 
   private void removeSupplier(Supplier<List<String>> createdSupplier) throws InterruptedException {
-    synchronized (lock) {
-      while (waiting) lock.wait(1L);
+    lockWait();
 
-      waiting = true;
-      server.removeSupplier(createdSupplier);
-    }
+    server.removeSupplier(createdSupplier);
 
     synchronized (lockSecond) {
       waitingSecond = false;
       lockSecond.notifyAll();
     }
+
+    lockWait();
   }
 
   private Object waitForever() throws InterruptedException {
