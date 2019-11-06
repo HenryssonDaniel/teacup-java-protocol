@@ -1,7 +1,7 @@
 package io.github.henryssondaniel.teacup.protocol.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -78,7 +78,7 @@ class BaseTest {
       while (waiting) lock.wait(1L);
     }
 
-    verify(context, atLeast(10)).getKey();
+    verify(context, atMost(11)).getKey();
     verifyNoMoreInteractions(context);
   }
 
