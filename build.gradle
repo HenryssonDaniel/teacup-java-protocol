@@ -59,8 +59,8 @@ configurations {
 dependencies {
     api 'io.github.henryssondaniel.teacup:core:1.1.5-SNAPSHOT'
     implementation 'org.assertj:assertj-core:3.14.0'
-    implementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
-    implementation 'org.junit.platform:junit-platform-launcher:1.5.2'
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0-M1'
+    implementation 'org.junit.platform:junit-platform-launcher:1.6.0-M1'
     testImplementation 'org.mockito:mockito-core:3.1.0'
 }
 
